@@ -95,7 +95,7 @@ jobs:
 
       - name: Check the engine is inside the app
         run: |
-          BIN=build/ios/iphoneos/Runner.app/Runner
+          BIN=build/ios/iphoneos/Runner.app/Frameworks/dj_engine_ios.framework/dj_engine_ios
           {
             echo "files: $(ls build/ios/iphoneos/Runner.app | tr '\n' ' ')"
             echo "frameworks: $(ls build/ios/iphoneos/Runner.app/Frameworks 2>/dev/null | tr '\n' ' ')"
