@@ -79,6 +79,17 @@ jobs:
             exit 1
           fi
 
+      - name: Check the engine is inside the app
+        run: |
+          BIN=build/ios/iphoneos/Runner.app/Runner
+          n=$(nm -gU "$BIN" | grep -c ' _dj_' || true)
+          echo "engine functions exported: $n"
+          if [ "$n" -lt 20 ]; then
+            echo "::error title=engine missing from the app::only $n dj_ symbols are visible, so dart:ffi could not find the engine"
+            exit 1
+          fi
+          echo "::notice title=engine linked::$n engine functions are exported by the app"
+
       - name: Keep the logs
         if: always()
         uses: actions/upload-artifact@v4
