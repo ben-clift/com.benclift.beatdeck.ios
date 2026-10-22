@@ -96,6 +96,15 @@ jobs:
       - name: Check the engine is inside the app
         run: |
           BIN=build/ios/iphoneos/Runner.app/Runner
+          {
+            echo "files: $(ls build/ios/iphoneos/Runner.app | tr '\n' ' ')"
+            echo "frameworks: $(ls build/ios/iphoneos/Runner.app/Frameworks 2>/dev/null | tr '\n' ' ')"
+            echo "runner symbols (global): $(nm -gU "$BIN" 2>&1 | wc -l); any dj_: $(nm "$BIN" 2>&1 | grep -ci dj_ || true); plugin: $(nm "$BIN" 2>&1 | grep -ci DjEngineIos || true)"
+            echo "dj sample: $(nm "$BIN" 2>&1 | grep -i dj_ | head -3 | tr '\n' ' ')"
+            echo "libs: $(ls -la native/ios_plugin/ios/libs | tr '\n' ' ')"
+            echo "keep: $(wc -l < native/ios_plugin/ios/Classes/dj_keep.c)"
+          } > diag.txt
+          echo "::notice title=diagnostics::$(cat diag.txt | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"}{print}')"
           n=$(nm -gU "$BIN" | grep -c ' _dj_' || true)
           echo "engine functions exported: $n"
           if [ "$n" -lt 20 ]; then
