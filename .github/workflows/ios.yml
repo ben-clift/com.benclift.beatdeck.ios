@@ -49,6 +49,20 @@ jobs:
           libtool -static -o native/ios_plugin/ios/libs/libdj_engine_all.a $libs
           ls -la native/ios_plugin/ios/libs
 
+      - name: List the engine functions dart:ffi looks up
+        run: |
+          set -euo pipefail
+          names=$( (grep -ohE "\bdj_[a-z_0-9]+" native/engine/dj_engine.h; grep -rohE "'dj_[a-z_0-9]+'" lib | tr -d "'") | sort -u)
+          out=native/ios_plugin/ios/Classes/dj_keep.c
+          {
+            echo "// Generated in CI: references every engine function so the linker keeps them."
+            for n in $names; do echo "extern void $n(void);"; done
+            echo "__attribute__((used)) void* const dj_keep_table[] = {"
+            for n in $names; do echo "  (void*)$n,"; done
+            echo "  0 };"
+          } > "$out"
+          echo "$names" | wc -l
+
       - name: Create the iPhone project
         run: |
           set -euo pipefail
